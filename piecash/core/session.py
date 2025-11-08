@@ -315,7 +315,7 @@ def create_book(
     # create all (tables, fk, ...)
     DeclarativeBase.metadata.create_all(engine)
 
-    s = Session(bind=engine)
+    s = Session(bind=engine, future=True)
 
     # create all rows in version table
     assert (
@@ -428,34 +428,35 @@ def open_book(
 
         shutil.copyfile(url, url_backup)
 
-    locks = list(engine.execute(gnclock.select()))
+    with engine.connect() as connection:
+        locks = list(connection.execute(gnclock.select()))
 
-    # ensure the file is not locked by GnuCash itself
-    if locks and not open_if_lock:
-        raise GnucashException("Lock on the file")
+        # ensure the file is not locked by GnuCash itself
+        if locks and not open_if_lock:
+            raise GnucashException("Lock on the file")
 
-    s = Session(bind=engine)
+        s = Session(bind=engine, future=True)
 
-    # check the versions in the table versions is consistent with the API
-    version_book = {
-        v.table_name: v.table_version
-        for v in s.query(Version).all()
-        if "Gnucash" not in v.table_name
-    }
-    for version, vt in version_supported.items():
-        if version_book == {k: v for k, v in vt.items() if "Gnucash" not in k}:
-            break
-    else:
-        raise ValueError("Unsupported table versions")
-    assert version == "3.0" or version == "3.7" or version == "4.1", (
-        "This version of piecash only support books from gnucash (3.0|3.7|4.1) "
-        "which is not the case for {}".format(uri_conn)
-    )
+        # check the versions in the table versions is consistent with the API
+        version_book = {
+            v.table_name: v.table_version
+            for v in s.query(Version).all()
+            if "Gnucash" not in v.table_name
+        }
+        for version, vt in version_supported.items():
+            if version_book == {k: v for k, v in vt.items() if "Gnucash" not in k}:
+                break
+        else:
+            raise ValueError("Unsupported table versions")
+        assert version == "3.0" or version == "3.7" or version == "4.1", (
+            "This version of piecash only support books from gnucash (3.0|3.7|4.1) "
+            "which is not the case for {}".format(uri_conn)
+        )
 
-    book = s.query(Book).one()
-    adapt_session(s, book=book, readonly=readonly)
+        book = s.query(Book).one()
+        adapt_session(s, book=book, readonly=readonly)
 
-    return book
+        return book
 
 
 def adapt_session(session, book, readonly):
