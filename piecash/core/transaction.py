@@ -298,9 +298,9 @@ class Transaction(DeclarativeBaseGuid):
             self.splits = splits
             # Ensure transaction is added to session if splits have accounts in a session
             for split in splits:
-                session = object_session(split.account) if split.account else None
-                if session is not None:
-                    session.add(self)
+                book = split.account.book
+                if book is not None:
+                    book.add(self)
                     break
 
     def __str__(self):

@@ -79,9 +79,8 @@ class Price(DeclarativeBaseGuid):
 
     def __init__(self, commodity, currency, date, value, type="unknown", source="user:price"):
         self.commodity = commodity
-        session = object_session(commodity) if commodity else None
-        if session is not None:
-            session.add(self)
+        if commodity.book is not None:
+            commodity.book.add(self)
         self.currency = currency
         assert _type(date) is datetime.date
         self.date = date
