@@ -102,6 +102,8 @@ class Split(DeclarativeBaseGuid):
     ):
         self.transaction = transaction
         self.account = account
+        if account is not None:
+            account.book.add(self)
         self.value = value
         self.quantity = value if quantity is None else quantity
         self.memo = memo
@@ -109,6 +111,8 @@ class Split(DeclarativeBaseGuid):
         self.reconcile_date = reconcile_date
         self.reconcile_state = reconcile_state
         self.lot = lot
+        if self.transaction is not None and self.transaction.book is None:
+            self.book.add(self.transaction)
 
     def __str__(self):
         try:
