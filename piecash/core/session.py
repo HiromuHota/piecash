@@ -490,8 +490,7 @@ def adapt_session(session, book, readonly):
     def delete_lock():
         session.execute(
             gnclock.delete().where(
-                (gnclock.c.hostname == socket.gethostname())
-                and (gnclock.c.pid == os.getpid())
+                (gnclock.c.hostname == socket.gethostname()) & (gnclock.c.pid == os.getpid())
             )
         )
         session.commit()
