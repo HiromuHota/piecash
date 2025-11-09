@@ -489,8 +489,8 @@ def adapt_session(session, book, readonly):
     # add logic to create/delete GnuCash locks
     def delete_lock():
         session.execute(
-            gnclock.delete(
-                whereclause=(gnclock.c.hostname == socket.gethostname())
+            gnclock.delete().where(
+                (gnclock.c.hostname == socket.gethostname())
                 and (gnclock.c.pid == os.getpid())
             )
         )
@@ -500,7 +500,7 @@ def adapt_session(session, book, readonly):
 
     def create_lock():
         session.execute(
-            gnclock.insert(values=dict(hostname=socket.gethostname(), pid=os.getpid()))
+            gnclock.insert().values(hostname=socket.gethostname(), pid=os.getpid())
         )
         session.commit()
 
