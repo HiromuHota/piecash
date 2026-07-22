@@ -28,6 +28,7 @@ class DeclarativeBaseGuid(DictWrapper, DeclarativeBase):
             primaryjoin=foreign(Slot.obj_guid) == cls.guid,
             cascade="all, delete-orphan",
             collection_class=CallableList,
+            overlaps="parent,slots",
         )
 
         return rel

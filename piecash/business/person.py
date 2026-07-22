@@ -156,6 +156,7 @@ class Person:
                 ),
                 cascade="all, delete-orphan",
                 collection_class=CallableList,
+                overlaps="jobs",
             )
 
             @event.listens_for(cls.jobs, "append")
