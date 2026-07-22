@@ -202,7 +202,7 @@ def _lint():
 
 ## package dependencies
 install_requires = [
-    "SQLAlchemy>=1.0, <1.5",
+    "SQLAlchemy>=2.0",
     "SQLAlchemy-Utils!=0.36.8",
     "pytz",
     "tzlocal",
